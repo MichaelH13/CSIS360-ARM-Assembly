@@ -62,8 +62,10 @@ isFull:
 push: 
 	/* Iterate our address_size_of_stack */
 	ldr r1, address_of_stack
+	ldr r1, [r1]
 	ldr r2, address_size_of_stack
-	add r2, #1 				/* r2 <- r2 + 1 */
+	ldr r2, [r2, +#1]
+	/*add r2, #1 */				/* r2 <- r2 + 1 */
 	add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
 	
 	/*ldr r0, [address_of_stack_top, +#4]*/
