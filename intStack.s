@@ -18,15 +18,17 @@ return: .word 0
 
 .text
 
-
-/*main:*/
-	/*ldr r1, address_of_return  r1 <- &address_of_return */
-  	/*str lr, [r1]		     *r1 <- lr */
-	/*bl isEmpty */
-	/*bl putchar */
-	/*ldr r1, address_of_return  r1 <- &address_of_return */
-  	/*ldr lr, [r1]		     lr <- *r1 */
-  	/*bx lr			     return from main */
+.global main
+main:
+	ldr r1, address_of_return 	/* r1 <- &address_of_return */
+  	str lr, [r1]		   		/* *r1 <- lr */
+  	
+  	mov r0, #0
+  	bl push
+  	
+	ldr r1, address_of_return 	/* r1 <- &address_of_return */
+  	ldr lr, [r1]		    	/* lr <- *r1 */
+  	bx lr			   			/* return from main */
 
 /* Returns a comparision for equality between the sp */
 /* and the bottom of the stack */
@@ -56,22 +58,24 @@ isFull:
 .endfunc
 
 /* Expects r0 to hold the integer to push */
-;push: 
+.func
+push: 
 	/* Iterate our address_size_of_stack */
-	;ldr r1, address_of_stack
-	;ldr r2, address_size_of_stack
-	;add r2, #1 				/* r2 <- r2 + 1 */
-	;add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
+	ldr r1, address_of_stack
+	ldr r2, address_size_of_stack
+	add r2, #1 				/* r2 <- r2 + 1 */
+	add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
 	
 	/*ldr r0, [address_of_stack_top, +#4]*/
 	/*str r0, address_of_stack_top */
 	
 	/* Put the int in r0 at the new top of our stack */
-	;str r0, [r1] /* *r1 ← r0 */
+	str r0, [r1] /* *r1 ← r0 */
 	/*mov r0, [address_of_stack_top] */
 	
-	;bx lr
-	
+	bx lr
+.endfunc
+
 /* Remove top element, store in r0, and decrement stack */
 ;pop:
 	;ldr r1, address_of_stack
@@ -102,5 +106,9 @@ address_of_return: .word return
 
 .global isEmpty
 .global isFull
+.global push
+;.global pop
+;.global top
+;.global size
 .global putchar
 .global getchar
