@@ -15,59 +15,64 @@ size_of_stack: .word 4
 
 .text
 
-/* Returns a comparision for equality between the sp 
-and the bottom of the stack */
+/* Returns a comparision for equality between the sp */
+/* and the bottom of the stack */
 isEmpty:
-	cmp address_of_stack, address_of_stack_top
-	bx lr
+	ldr r1, address_of_stack_top
+	ldr r2, address_of_stack
+	cmp r1, r2
+	bx lr 
 
-/* Returns a comparision for equality between the sp and 
-the top of the stack */
+/* Returns a comparision for equality between the sp and */
+/* the top of the stack */
 isFull:
-	/* Compare the current top of the stack to the address 
-	of the stack incremented by 4096 bytes */
-	cmp address_of_stack_top, [address_of_stack, +#4096]
-	bx lr
+	/* Compare the current top of the stack to the address */
+	/* of the stack incremented by 4096 bytes */
+	ldr r1, [address_of_stack_top]
+	ldr r2, [address_of_stack, +#4096]
+	cmp r1, r2
+	bx lr 
 	
 /* Expects r0 to hold the integer to push */
-push:
+;push: 
 	/* Iterate our topOfTheStack */
-	ldr r1, address_of_stack
-	ldr r2, address_size_of_stack
-	add r2, #1 				/* r2 <- r2 + 1 */
-	add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
+	;ldr r1, address_of_stack
+	;ldr r2, address_size_of_stack
+	;add r2, #1 				/* r2 <- r2 + 1 */
+	;add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
 	
 	/*ldr r0, [address_of_stack_top, +#4]*/
 	/*str r0, address_of_stack_top */
 	
 	/* Put the int in r0 at the new top of our stack */
-	str r0, [r1] /* *r1 ← r0 */
+	;str r0, [r1] /* *r1 ← r0 */
 	/*mov r0, [address_of_stack_top] */
 	
-	bx lr
+	;bx lr
 	
 /* Remove top element, store in r0, and decrement stack */
-pop:
-	ldr r1, address_of_stack
-	ldr r2, address_size_of_stack
-	add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
-	str r0, [r1]
-	sub r2, #1
-	bx lr
+;pop:
+	;ldr r1, address_of_stack
+	;ldr r2, address_size_of_stack
+	;add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
+	;str r0, [r1]
+	;sub r2, #1
+	;bx lr */
 
 /* Store top element in r0 */
-top:
+;top:
 	/* Store top element in r0 */
-	ldr r1, address_of_stack
-	ldr r2, address_size_of_stack
-	add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
-	str r0, [r1]
-	bx lr
+	;ldr r1, address_of_stack
+	;ldr r2, address_size_of_stack
+	;add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
+	;str r0, [r1]
+	;bx lr 
 	
 /* Store stack size in r0 */
-size:
-	ldr r2, address_size_of_stack
-	ldr r0, [r2] /* r0 <- *r2 */
+;size:
+	;ldr r2, address_size_of_stack
+	;ldr r0, [r2] /* r0 <- *r2 */
+	;bx lr
 	
 address_of_stack: .word the_stack
 address_size_of_stack: .word size_of_stack
