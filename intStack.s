@@ -1,7 +1,7 @@
 /* -- intStack.s */
 /* r0: Used for returns */
-/* r1: Used for storing the address of the array */
-/* r2: Used to keep track of the current count of elements */
+/* r1: Used for storing the address of the array (address_of_stack) */
+/* r2: Used to keep track of the current count of elements (address_size_of_stack) */
 
 .data
 
@@ -14,12 +14,20 @@ the_stack: .skip 4096
 size_of_stack: .word 4
 
 .text
+.global main
+.global isEmpty
+.global isFull
+
+main:
+	bx lr
 
 /* Returns a comparision for equality between the sp */
 /* and the bottom of the stack */
 isEmpty:
-	ldr r1, address_of_stack_top
-	ldr r2, address_of_stack
+	ldr r1, address_of_stack
+	ldr r1, [r1]
+	ldr r2, address_size_of_stack
+	ldr r2, [r2]
 	cmp r1, r2
 	bx lr 
 
@@ -28,14 +36,17 @@ isEmpty:
 isFull:
 	/* Compare the current top of the stack to the address */
 	/* of the stack incremented by 4096 bytes */
-	ldr r1, [address_of_stack_top]
-	ldr r2, [address_of_stack, +#4096]
+	ldr r1, address_of_stack
+	ldr r1, [r1]
+	ldr r2, address_size_of_stack
+	ldr r2, [r2]
+	add r2, #4096
 	cmp r1, r2
 	bx lr 
 	
 /* Expects r0 to hold the integer to push */
 ;push: 
-	/* Iterate our topOfTheStack */
+	/* Iterate our address_size_of_stack */
 	;ldr r1, address_of_stack
 	;ldr r2, address_size_of_stack
 	;add r2, #1 				/* r2 <- r2 + 1 */
@@ -57,7 +68,7 @@ isFull:
 	;add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
 	;str r0, [r1]
 	;sub r2, #1
-	;bx lr */
+	;bx lr 
 
 /* Store top element in r0 */
 ;top:
