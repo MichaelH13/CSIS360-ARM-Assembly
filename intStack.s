@@ -13,16 +13,24 @@ the_stack: .skip 4096
 .balign 4
 size_of_stack: .word 4
 
-.text
-.global main
-.global isEmpty
-.global isFull
+.balign 4
+return: .word 0
 
-main:
-	bx lr
+.text
+
+
+/*main:*/
+	/*ldr r1, address_of_return  r1 <- &address_of_return */
+  	/*str lr, [r1]		     *r1 <- lr */
+	/*bl isEmpty */
+	/*bl putchar */
+	/*ldr r1, address_of_return  r1 <- &address_of_return */
+  	/*ldr lr, [r1]		     lr <- *r1 */
+  	/*bx lr			     return from main */
 
 /* Returns a comparision for equality between the sp */
 /* and the bottom of the stack */
+.func
 isEmpty:
 	ldr r1, address_of_stack
 	ldr r1, [r1]
@@ -30,9 +38,11 @@ isEmpty:
 	ldr r2, [r2]
 	cmp r1, r2
 	bx lr 
+.endfunc
 
 /* Returns a comparision for equality between the sp and */
 /* the top of the stack */
+.func
 isFull:
 	/* Compare the current top of the stack to the address */
 	/* of the stack incremented by 4096 bytes */
@@ -43,7 +53,8 @@ isFull:
 	add r2, #4096
 	cmp r1, r2
 	bx lr 
-	
+.endfunc
+
 /* Expects r0 to hold the integer to push */
 ;push: 
 	/* Iterate our address_size_of_stack */
@@ -87,3 +98,9 @@ isFull:
 	
 address_of_stack: .word the_stack
 address_size_of_stack: .word size_of_stack
+address_of_return: .word return
+
+.global isEmpty
+.global isFull
+.global putchar
+.global getchar
