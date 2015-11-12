@@ -35,9 +35,7 @@ main:
 .func
 isEmpty:
 	ldr r1, address_of_stack
-	ldr r1, [r1]
 	ldr r2, address_size_of_stack
-	ldr r2, [r2]
 	cmp r1, r2
 	bx lr 
 .endfunc
@@ -49,10 +47,8 @@ isFull:
 	/* Compare the current top of the stack to the address */
 	/* of the stack incremented by 4096 bytes */
 	ldr r1, address_of_stack
-	ldr r1, [r1]
 	ldr r2, address_size_of_stack
-	ldr r2, [r2]
-	add r2, #4096
+	add r1, #4096
 	cmp r1, r2
 	bx lr 
 .endfunc
@@ -89,13 +85,24 @@ push:
 .endfunc
 
 /* Remove top element, store in r0, and decrement stack */
-;pop:
-	;ldr r1, address_of_stack
-	;ldr r2, address_size_of_stack
-	;add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
-	;str r0, [r1]
-	;sub r2, #1
-	;bx lr 
+pop:
+	/* Load address_of_stack into r1 */
+	ldr r1, address_of_stack
+	
+	/* Load the value at address_size_of_stack into r2 */
+	ldr r2, address_size_of_stack
+	ldr r2, [r2]
+	
+	/* First, skip the size of our stack in r2 */
+	/* Then add the address of our stack to the result */
+	/* And finally place the result in r1 */
+	add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
+	str r0, [r1] /* *r1 ← r0 */
+	
+	/* Decrement the size_of_stack by one since we have "removed" the value */
+	sub r2, #1
+	
+	bx lr 
 
 /* Store top element in r0 */
 ;top:
