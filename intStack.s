@@ -6,7 +6,7 @@
 .data
 
 .balign 4
-size_of_stack: .word 4
+size_of_stack: .word 0
 
 /* skip 1024 * 4 bytes so we have enough room to store 
 1024 32-bit integers */
@@ -24,7 +24,10 @@ main:
   	str lr, [r1]		   		/* *r1 <- lr */
   	
   	mov r0, #0
-  	bl push
+  	bl isEmpty
+  	mov r0, #3
+  	bl isFull
+  	b main
   	
 	ldr r1, address_of_return 	/* r1 <- &address_of_return */
   	ldr lr, [r1]		    	/* lr <- *r1 */
@@ -34,9 +37,12 @@ main:
 /* and the bottom of the stack */
 .func
 isEmpty:
-	ldr r1, address_of_stack
+	ldr r1, =0
 	ldr r2, address_size_of_stack
+	ldr r2, [r2]
 	cmp r1, r2
+	moveq r0, #1
+	movne r0, #0
 	bx lr 
 .endfunc
 
@@ -44,12 +50,14 @@ isEmpty:
 /* the top of the stack */
 .func
 isFull:
-	/* Compare the current top of the stack to the address */
-	/* of the stack incremented by 4096 bytes */
-	ldr r1, address_of_stack
+	/* Compare current address_size_of_stack to 1024 */
+	/* If equal return 1, else return 0 */
+	ldr r1, =1024
 	ldr r2, address_size_of_stack
-	add r1, #4096
+	ldr r2, [r2]
 	cmp r1, r2
+	moveq r0, #1
+	movne r0, #0
 	bx lr 
 .endfunc
 
@@ -60,30 +68,28 @@ push:
 	/* Load address_of_stack into r1 */
 	ldr r1, address_of_stack
 	
-	/* Load the value of the address of the stack into r1 */
-	/*ldr r1, [r1]*/
-	
-	/* Iterate our address_size_of_stack */
+	/* Get the address_size_of_stack and load the value into r2 */
 	ldr r2, address_size_of_stack
 	ldr r2, [r2]
-	mov r3, #1
-	add r2, r3
 	
 	/* First, skip the size of our stack in r2 */
 	/* Then add the address of our stack to the result */
 	/* And finally place the result in r1 */
 	add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
 	
-	/*ldr r0, [address_of_stack_top, +#4]*/
-	/*str r0, address_of_stack_top */
-	
 	/* Put the int in r0 at the new top of our stack */
 	str r0, [r1] /* *r1 ← r0 */
-	/*mov r0, [address_of_stack_top] */
+	
+	/* Increment the stack */
+	mov r3, #1
+	add r3, r2
+	ldr r2, address_size_of_stack
+	str r3, [r2]
 	
 	bx lr
 .endfunc
 
+.func
 /* Remove top element, store in r0, and decrement stack */
 pop:
 	/* Load address_of_stack into r1 */
@@ -100,9 +106,15 @@ pop:
 	str r0, [r1] /* *r1 ← r0 */
 	
 	/* Decrement the size_of_stack by one since we have "removed" the value */
-	sub r2, #1
+	mov r3, #1
+	sub r2, r3
+	
+	/* Store the address of the stack in r3, then put the value of r2 into r3 */
+	ldr r3, address_size_of_stack
+	str r2, [r3]
 	
 	bx lr 
+.endfunc
 
 /* Store top element in r0 */
 ;top:
@@ -126,7 +138,7 @@ address_of_return: .word return
 .global isEmpty
 .global isFull
 .global push
-;.global pop
+.global pop
 ;.global top
 ;.global size
 .global putchar
