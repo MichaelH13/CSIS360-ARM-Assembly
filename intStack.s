@@ -18,49 +18,9 @@ return: .word 0
 
 .text
 
-.global main
-main:
-	ldr r1, address_of_return 	/* r1 <- &address_of_return */
-  	str lr, [r1]		   		/* *r1 <- lr */
-  	
-  	mov r0, #10
-  	bl isEmpty
-  	
-  	mov r0, #5
-  	bl push
-  	mov r0, #10
-  	bl top
-  	mov r0, #10
-  	bl size
-  	mov r0, #10
-  	bl isEmpty
-  	
-  	mov r0, #3
-  	bl push
-  	mov r0, #10
-  	bl top
-  	mov r0, #10
-  	bl size
-  	mov r0, #10
-  	bl isEmpty
-  	bl pop
-  	mov r0, #10
-  	bl top
-  	mov r0, #10
-  	bl pop
-  	
-  	bl isFull
-  	bl isEmpty
-  	
-  	b main
-  	
-	ldr r1, address_of_return 	/* r1 <- &address_of_return */
-  	ldr lr, [r1]		    	/* lr <- *r1 */
-  	bx lr			   			/* return from main */
-
 /* Returns a comparision for equality between the sp */
 /* and the bottom of the stack */
-.func
+.func isEmpty
 isEmpty:
 	ldr r1, =0
 	ldr r2, address_size_of_stack
@@ -73,7 +33,7 @@ isEmpty:
 
 /* Returns a comparision for equality between the sp and */
 /* the top of the stack */
-.func
+.func isFull
 isFull:
 	/* Compare current address_size_of_stack to 1024 */
 	/* If equal return 1, else return 0 */
@@ -87,7 +47,7 @@ isFull:
 .endfunc
 
 /* Expects r0 to hold the integer to push */
-.func
+.func push
 push: 
 	/* Load address_of_stack into r1 */
 	ldr r1, address_of_stack
@@ -99,12 +59,14 @@ push:
 	/* First, skip the size of our stack in r2 */
 	/* Then add the address of our stack to the result */
 	/* And finally place the result in r1 */
-	add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
+	add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
 	
 	/* Put the int in r0 at the new top of our stack */
 	str r0, [r1] /* *r1 ← r0 */
 	
 	/* Increment the stack */
+	ldr r2, address_size_of_stack
+	ldr r2, [r2]
 	mov r3, #1
 	add r3, r2
 	ldr r2, address_size_of_stack
@@ -113,27 +75,35 @@ push:
 	bx lr
 .endfunc
 
-.func
 /* Remove top element, store in r0, and decrement stack */
+.func pop
 pop:
-	/* Call top instead of rewriting code. Not faster...prettier. */
-	push {lr}
-	bl top
+	/* Load address_of_stack into r1 */
+	ldr r1, address_of_stack
+	
+	/* Load the value at address_size_of_stack into r2 */
+	ldr r2, address_size_of_stack
+	ldr r2, [r2]
 	
 	/* Decrement the size_of_stack by one since we have "removed" the value */
 	mov r3, #1
 	sub r2, r3
 	
+	/* First, skip the size of our stack in r2 */
+	/* Then add the address of our stack to the result */
+	/* And finally place the result in r1 */
+	add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
+	ldr r0, [r1] /* r0 ← *r1 */
+	
 	/* Store the address of the stack in r3, */
 	/* then put the value of r2 into r3 */
 	ldr r3, address_size_of_stack
 	str r2, [r3]
-	pop {lr}
 	bx lr 
 .endfunc
 
-.func
 /* Store top element in r0 */
+.func top
 top:
 	/* Load address_of_stack into r1 */
 	ldr r1, address_of_stack
@@ -145,13 +115,14 @@ top:
 	/* First, skip the size of our stack in r2 */
 	/* Then add the address of our stack to the result */
 	/* And finally place the result in r1 */
+	sub r2, #1
 	add r1, r1, r2, LSL #2  /* r1 ← r1 + (r2*4) */
 	ldr r0, [r1] /* r0 ← *r1 */
 	bx lr
 .endfunc
 
-.func
 /* Store stack size in r0 */
+.func size
 size:
 	ldr r2, address_size_of_stack
 	ldr r0, [r2] /* r0 <- *r2 */
