@@ -5,13 +5,13 @@
 
 .data
 
+.balign 4
+size_of_stack: .word 4
+
 /* skip 1024 * 4 bytes so we have enough room to store 
 1024 32-bit integers */
 .balign 4
 the_stack: .skip 4096
-
-.balign 4
-size_of_stack: .word 4
 
 .balign 4
 return: .word 0
@@ -60,12 +60,22 @@ isFull:
 /* Expects r0 to hold the integer to push */
 .func
 push: 
-	/* Iterate our address_size_of_stack */
+	
+	/* Load address_of_stack into r1 */
 	ldr r1, address_of_stack
-	ldr r1, [r1]
+	
+	/* Load the value of the address of the stack into r1 */
+	/*ldr r1, [r1]*/
+	
+	/* Iterate our address_size_of_stack */
 	ldr r2, address_size_of_stack
-	ldr r2, [r2, +#1]
-	/*add r2, #1 */				/* r2 <- r2 + 1 */
+	ldr r2, [r2]
+	mov r3, #1
+	add r2, r3
+	
+	/* First, skip the size of our stack in r2 */
+	/* Then add the address of our stack to the result */
+	/* And finally place the result in r1 */
 	add r1, r1, r2, LSL #2  /* r3 ← r1 + (r2*4) */
 	
 	/*ldr r0, [address_of_stack_top, +#4]*/
