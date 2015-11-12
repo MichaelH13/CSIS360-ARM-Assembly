@@ -50,7 +50,7 @@ compareStack:
 
 
 /* Returns a comparision for equality between the size_of_stack and 0. */
-/* Returns true if size_of_stack == 0, 1 otherwise. */
+/* Returns 1 if size_of_stack == 0, 0 otherwise. */
 .func isEmpty
 isEmpty:
     /* Load immediate 0 into r0. */
@@ -67,7 +67,7 @@ isEmpty:
 
 
 /* Returns a comparision for equality between the size_of_stack and 1024. */
-/* Returns true if size_of_stack == 1024, 1 otherwise. */
+/* Returns 1 if size_of_stack == 1024, 0 otherwise. */
 .func isFull
 isFull:
 	/* Load immediate 1024 into r0. */
